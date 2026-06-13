@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Think — Battle</title>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Teko:wght@700&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--green:#00C566;--green-d:#009E50;--dark:#0A0F0D;--card:#161D19;--panel:#111714;--border:#1E2B23;--muted:#4A6057;--white:#F0FFF6;--gold:#FFD447;--silver:#C0C0C0;--bronze:#CD7F32}
+    body{background:var(--dark);color:var(--white);font-family:'Hind Siliguri',sans-serif;min-height:100vh}
+
+    /* NAV */
+    nav{background:var(--panel);border-bottom:1px solid var(--border);padding:.9rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+    .logo{font-family:'Teko',sans-serif;font-size:1.4rem;color:var(--green)}
+    .logo span{color:var(--white)}
+    .nav-btn{background:var(--green);color:var(--dark);border:none;border-radius:6px;padding:.4rem 1rem;font-family:'Hind Siliguri',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+
+    .container{max-width:600px;margin:0 auto;padding:2rem 1.5rem}
+
+    /* HEADER */
+    .page-header{text-align:center;margin-bottom:2rem}
+    .page-label{font-size:.75rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--green);margin-bottom:.5rem}
+    .page-title{font-family:'Teko',sans-serif;font-size:2.5rem;font-weight:700}
+    .page-sub{color:var(--muted);font-size:.88rem;margin-top:.3rem}
+
+    /* TOP 3 PODIUM */
+    .podium{display:flex;align-items:flex-end;justify-content:center;gap:1rem;margin-bottom:2rem}
+    .podium-item{flex:1;max-width:140px;text-align:center}
+    .podium-card{border-radius:12px 12px 0 0;padding:1rem .5rem;position:relative}
+    .podium-card.gold{background:rgba(255,212,71,.1);border:1px solid rgba(255,212,71,.3);border-bottom:none;min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .podium-card.silver{background:rgba(192,192,192,.08);border:1px solid rgba(192,192,192,.2);border-bottom:none;min-height:85px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .podium-card.bronze{background:rgba(205,127,50,.08);border:1px solid rgba(205,127,50,.2);border-bottom:none;min-height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .podium-trophy{font-size:1.8rem;margin-bottom:.3rem}
+    .podium-name{font-size:.78rem;font-weight:700;margin-bottom:.2rem;word-break:break-all}
+    .podium-score{font-family:'Teko',sans-serif;font-size:1.1rem}
+    .podium-score.gold{color:var(--gold)}
+    .podium-score.silver{color:var(--silver)}
+    .podium-score.bronze{color:var(--bronze)}
+    .podium-base{padding:.4rem;font-family:'Teko',sans-serif;font-size:.9rem;font-weight:700;border-radius:0 0 6px 6px}
+    .podium-base.gold{background:rgba(255,212,71,.2);color:var(--gold)}
+    .podium-base.silver{background:rgba(192,192,192,.15);color:var(--silver)}
+    .podium-base.bronze{background:rgba(205,127,50,.15);color:var(--bronze)}
+
+    /* FULL LIST */
+    .lb-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:2rem}
+    .lb-header-row{display:flex;align-items:center;gap:1rem;padding:.7rem 1.2rem;font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)}
+    .lb-row{display:flex;align-items:center;gap:1rem;padding:.85rem 1.2rem;border-bottom:1px solid var(--border);transition:background .2s}
+    .lb-row:last-child{border-bottom:none}
+    .lb-row:hover{background:rgba(0,197,102,.03)}
+    .lb-row.my-row{background:rgba(0,197,102,.06);border-left:3px solid var(--green)}
+
+    .rank{min-width:28px;font-family:'Teko',sans-serif;font-size:1.1rem;text-align:center}
+    .rank.r1{color:var(--gold)}
+    .rank.r2{color:var(--silver)}
+    .rank.r3{color:var(--bronze)}
+    .rank.rn{color:var(--muted)}
+
+    .player-info{flex:1}
+    .player-name{font-weight:700;font-size:.9rem}
+    .player-phone{font-size:.75rem;color:var(--muted)}
+    .player-time{font-size:.72rem;color:var(--muted);margin-top:.1rem}
+
+    .score-col{font-family:'Teko',sans-serif;font-size:1.2rem;color:var(--green);min-width:50px;text-align:right}
+    .pct-col{font-size:.78rem;color:var(--muted);min-width:40px;text-align:right}
+
+    /* MY RANK */
+    .my-rank-box{background:rgba(0,197,102,.08);border:1px solid rgba(0,197,102,.25);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem}
+    .my-rank-num{font-family:'Teko',sans-serif;font-size:2rem;color:var(--green);min-width:50px}
+    .my-rank-label{font-size:.8rem;color:var(--muted)}
+    .my-rank-score{font-family:'Teko',sans-serif;font-size:1.5rem;color:var(--white);margin-left:auto}
+
+    /* EMPTY */
+    .empty{text-align:center;padding:3rem 1rem;color:var(--muted)}
+    .empty-icon{font-size:2.5rem;margin-bottom:.8rem}
+
+    /* PLAY BTN */
+    .btn-play{display:block;width:100%;background:var(--green);color:var(--dark);border:none;border-radius:10px;padding:.9rem;font-family:'Hind Siliguri',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;transition:background .2s}
+    .btn-play:hover{background:var(--green-d)}
+
+    /* DIVIDER */
+    .divider{width:40px;height:3px;background:var(--green);border-radius:2px;margin:.5rem auto 1rem}
+
+    @media(max-width:400px){
+      .podium{gap:.5rem}
+      .podium-name{font-size:.7rem}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Think<span>Battle</span></div>
+  <a href="{% url 'quiz' %}" class="nav-btn">খেলুন 🎯</a>
+</nav>
+
+<div class="container">
+
+  <div class="page-header">
+    <div class="page-label">আজকের র‍্যাংকিং</div>
+    <div class="divider"></div>
+    <div class="page-title">🏆 লিডারবোর্ড</div>
+    <div class="page-sub">সেরা খেলোয়াড়রা গিফট ভাউচার জিতবেন</div>
+  </div>
+
+  <!-- PODIUM TOP 3 -->
+  {% if top3|length >= 3 %}
+  <div class="podium">
+    <!-- 2nd -->
+    <div class="podium-item">
+      <div class="podium-card silver">
+        <div class="podium-trophy">🥈</div>
+        <div class="podium-name">{{ top3.1.player.phone|slice:":6" }}****</div>
+        <div class="podium-score silver">{{ top3.1.score }}/{{ top3.1.total }}</div>
+      </div>
+      <div class="podium-base silver">২য়</div>
+    </div>
+    <!-- 1st -->
+    <div class="podium-item">
+      <div class="podium-card gold">
+        <div class="podium-trophy">🥇</div>
+        <div class="podium-name">{{ top3.0.player.phone|slice:":6" }}****</div>
+        <div class="podium-score gold">{{ top3.0.score }}/{{ top3.0.total }}</div>
+      </div>
+      <div class="podium-base gold">১ম</div>
+    </div>
+    <!-- 3rd -->
+    <div class="podium-item">
+      <div class="podium-card bronze">
+        <div class="podium-trophy">🥉</div>
+        <div class="podium-name">{{ top3.2.player.phone|slice:":6" }}****</div>
+        <div class="podium-score bronze">{{ top3.2.score }}/{{ top3.2.total }}</div>
+      </div>
+      <div class="podium-base bronze">৩য়</div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- MY RANK -->
+  {% if my_rank %}
+  <div class="my-rank-box">
+    <div class="my-rank-num">#{{ my_rank }}</div>
+    <div>
+      <div style="font-weight:700;font-size:.9rem">আপনার র‍্যাংক</div>
+      <div class="my-rank-label">{{ phone }}</div>
+    </div>
+    <div class="my-rank-score">{{ my_score }}/15</div>
+  </div>
+  {% endif %}
+
+  <!-- FULL LEADERBOARD -->
+  <div class="lb-card">
+    <div class="lb-header-row">
+      <div style="min-width:28px">#</div>
+      <div style="flex:1">খেলোয়াড়</div>
+      <div style="min-width:50px;text-align:right">স্কোর</div>
+      <div style="min-width:40px;text-align:right">%</div>
+    </div>
+
+    {% if leaderboard %}
+      {% for entry in leaderboard %}
+      <div class="lb-row {% if entry.player.phone == phone %}my-row{% endif %}">
+        <div class="rank {% if forloop.counter == 1 %}r1{% elif forloop.counter == 2 %}r2{% elif forloop.counter == 3 %}r3{% else %}rn{% endif %}">
+          {% if forloop.counter == 1 %}🥇
+          {% elif forloop.counter == 2 %}🥈
+          {% elif forloop.counter == 3 %}🥉
+          {% else %}{{ forloop.counter }}{% endif %}
+        </div>
+        <div class="player-info">
+          <div class="player-name">{{ entry.player.phone|slice:":6" }}****</div>
+          <div class="player-time">{{ entry.started_at|timesince }} আগে</div>
+        </div>
+        <div class="score-col">{{ entry.score }}/{{ entry.total }}</div>
+        <div class="pct-col">{{ entry.percentage }}%</div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty">
+        <div class="empty-icon">🎯</div>
+        <div>এখনো কেউ খেলেনি</div>
+        <div style="font-size:.8rem;margin-top:.3rem">প্রথম হওয়ার সুযোগ আপনার!</div>
+      </div>
+    {% endif %}
+  </div>
+
+  <a href="{% url 'quiz' %}" class="btn-play">আবার খেলুন → গিফট জিতুন 🎁</a>
+
+</div>
+</body>
+</html>

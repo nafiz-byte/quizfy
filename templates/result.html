@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ফলাফল — ThinkBattle</title>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Teko:wght@700&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--green:#00C566;--green-d:#009E50;--dark:#0A0F0D;--card:#161D19;--panel:#111714;--border:#1E2B23;--muted:#4A6057;--white:#F0FFF6;--gold:#FFD447;--red:#FF4F4F}
+    body{background:var(--dark);color:var(--white);font-family:'Hind Siliguri',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem}
+
+    .card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem 2rem;width:100%;max-width:440px;text-align:center}
+
+    .logo{font-family:'Teko',sans-serif;font-size:1.4rem;color:var(--green);margin-bottom:1.5rem;display:block}
+    .logo span{color:var(--white)}
+
+    /* emoji big */
+    .result-emoji{font-size:4rem;margin-bottom:1rem;animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes pop{0%{transform:scale(0)}100%{transform:scale(1)}}
+
+    .result-title{font-family:'Teko',sans-serif;font-size:2.2rem;margin-bottom:.3rem}
+    .result-sub{color:var(--muted);font-size:.9rem;margin-bottom:2rem}
+
+    /* score ring */
+    .score-ring{position:relative;width:130px;height:130px;margin:0 auto 1.5rem}
+    .score-ring svg{transform:rotate(-90deg)}
+    .score-ring circle{fill:none;stroke-width:8}
+    .ring-bg{stroke:var(--border)}
+    .ring-fg{stroke:var(--green);stroke-linecap:round;transition:stroke-dashoffset 1.2s ease}
+    .score-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .score-num{font-family:'Teko',sans-serif;font-size:2.5rem;font-weight:700;color:var(--green);line-height:1}
+    .score-total{font-size:.8rem;color:var(--muted)}
+
+    /* stats */
+    .stats{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.5rem}
+    .stat{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.9rem}
+    .stat-val{font-family:'Teko',sans-serif;font-size:1.6rem;font-weight:700}
+    .stat-val.green{color:var(--green)}
+    .stat-val.red{color:var(--red)}
+    .stat-val.gold{color:var(--gold)}
+    .stat-label{font-size:.75rem;color:var(--muted)}
+
+    /* message box */
+    .msg-box{border-radius:10px;padding:1rem;margin-bottom:1.5rem;font-size:.88rem;line-height:1.6}
+    .msg-box.great{background:rgba(0,197,102,.08);border:1px solid rgba(0,197,102,.25);color:rgba(240,255,246,.8)}
+    .msg-box.ok{background:rgba(255,212,71,.06);border:1px solid rgba(255,212,71,.2);color:rgba(240,255,246,.7)}
+    .msg-box.bad{background:rgba(255,79,79,.07);border:1px solid rgba(255,79,79,.2);color:rgba(240,255,246,.7)}
+
+    /* buttons */
+    .btn-primary{width:100%;background:var(--green);color:var(--dark);border:none;border-radius:10px;padding:.9rem;font-family:'Hind Siliguri',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:background .2s;margin-bottom:.7rem;display:block;text-decoration:none;text-align:center}
+    .btn-primary:hover{background:var(--green-d)}
+    .btn-ghost{width:100%;background:transparent;border:1px solid var(--border);color:var(--white);border-radius:10px;padding:.9rem;font-family:'Hind Siliguri',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;transition:border-color .2s;display:block;text-decoration:none;text-align:center}
+    .btn-ghost:hover{border-color:var(--green);color:var(--green)}
+
+    .phone-note{font-size:.78rem;color:var(--muted);margin-top:1rem}
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">Think<span>Battle</span></div>
+
+  <!-- emoji & title -->
+  {% if score >= 13 %}
+    <div class="result-emoji">🏆</div>
+    <div class="result-title" style="color:var(--gold)">অসাধারণ!</div>
+    <div class="result-sub">আপনি একজন সত্যিকারের চ্যাম্পিয়ন!</div>
+  {% elif score >= 9 %}
+    <div class="result-emoji">⭐</div>
+    <div class="result-title" style="color:var(--green)">দারুণ করেছেন!</div>
+    <div class="result-sub">আরেকটু চেষ্টা করলে টপে যাবেন!</div>
+  {% elif score >= 5 %}
+    <div class="result-emoji">💪</div>
+    <div class="result-title">Better-Luck!!</div>
+    <div class="result-sub">আরও পড়াশোনা করুন, পারবেন!</div>
+  {% else %}
+    <div class="result-emoji">📚</div>
+    <div class="result-title" style="color:var(--red)">আরও শিখুন!</div>
+    <div class="result-sub">হতাশ হবেন না, আবার চেষ্টা করুন!</div>
+  {% endif %}
+
+  <!-- Score ring -->
+  <div class="score-ring">
+    <svg viewBox="0 0 130 130" width="130" height="130">
+      <circle class="ring-bg" cx="65" cy="65" r="57"/>
+      <circle class="ring-fg" cx="65" cy="65" r="57"
+        stroke-dasharray="358"
+        stroke-dashoffset="{{ ring_offset }}"
+        id="ringFg"/>
+    </svg>
+    <div class="score-inner">
+      <div class="score-num">{{ score }}</div>
+      <div class="score-total">/ {{ total }}</div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-val green">{{ score }}</div>
+      <div class="stat-label">✅ সঠিক</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val red">{{ wrong }}</div>
+      <div class="stat-label">❌ ভুল</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val gold">{{ percentage }}%</div>
+      <div class="stat-label">🎯 নির্ভুলতা</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" style="color:var(--white)">{{ total }}</div>
+      <div class="stat-label">📝 মোট প্রশ্ন</div>
+    </div>
+  </div>
+
+  <!-- Message -->
+  {% if score >= 13 %}
+    <div class="msg-box great">🎉 অভিনন্দন! আপনি লিডারবোর্ডে জায়গা পাওয়ার যোগ্য। আজকের টপ ৩ এ থাকলে গিফট ভাউচার পাবেন!</div>
+  {% elif score >= 9 %}
+    <div class="msg-box ok">💡 ভালো চেষ্টা! আরেকটু মনোযোগ দিলেই টপ ৩ এ জায়গা হবে।</div>
+  {% else %}
+    <div class="msg-box bad">📖 হতাশ হবেন না! প্রতিটি প্রশ্ন থেকে শিখুন এবং আবার চেষ্টা করুন।</div>
+  {% endif %}
+
+  <!-- Buttons -->
+  <a href="{% url 'quiz' %}" class="btn-primary">আবার খেলুন 🔄</a>
+  <a href="{% url 'landing' %}" class="btn-ghost">হোম পেজে যান</a>
+  <a href="{% url 'leaderboard' %}" class="btn-ghost">🏆 লিডারবোর্ড দেখুন</a>
+  <p class="phone-note">📱 {{ phone }}</p>
+</div>
+
+<script>
+  // Ring animation on load
+  window.addEventListener('load', () => {
+    const ring = document.getElementById('ringFg');
+    if (ring) {
+      const final = parseFloat(ring.getAttribute('stroke-dashoffset'));
+      ring.style.strokeDashoffset = '358';
+      setTimeout(() => { ring.style.strokeDashoffset = final; }, 100);
+    }
+  });
+</script>
+</body>
+</html>

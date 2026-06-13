@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OTP যাচাই — ThinkBattle</title>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Teko:wght@700&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--green: #00c52b;--dark:#0A0F0D;--card:#161D19;--border:#1E2B23;--muted:#4A6057;--white:#F0FFF6}
+    body{background:var(--dark);color:var(--white);font-family:'Hind Siliguri',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2.5rem 2rem;width:100%;max-width:420px;text-align:center}
+    .logo{font-family:'Teko',sans-serif;font-size:1.6rem;color:var(--green);margin-bottom:1.5rem}
+    h2{font-family:'Teko',sans-serif;font-size:2rem;margin-bottom:.5rem}
+    .sub{color:var(--muted);font-size:.9rem;margin-bottom:2rem}
+    .phone-badge{background:rgba(0,197,102,.1);border:1px solid rgba(0,197,102,.3);border-radius:100px;padding:.4rem 1rem;font-size:.9rem;color:var(--green);display:inline-block;margin-bottom:1.5rem}
+    .otp-input{display:flex;gap:.6rem;justify-content:center;margin-bottom:1.5rem}
+    .otp-input input{width:46px;height:54px;background:#111714;border:1px solid var(--border);border-radius:8px;color:var(--white);font-size:1.4rem;font-family:'Teko',sans-serif;text-align:center;outline:none;transition:border-color .2s}
+    .otp-input input:focus{border-color:var(--green)}
+    .btn{width:100%;background:var(--green);color:#0A0F0D;border:none;border-radius:8px;padding:.9rem;font-family:'Hind Siliguri',sans-serif;font-size:1rem;font-weight:700;cursor:pointer}
+    .btn:hover{background:#009E50}
+    .resend{margin-top:1rem;font-size:.82rem;color:var(--muted)}
+    .resend a{color:var(--green);text-decoration:none}
+    .messages{margin-bottom:1rem}
+    .msg-error{background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.3);color:#ff8080;border-radius:8px;padding:.6rem 1rem;font-size:.85rem;margin-bottom:.5rem}
+    .msg-success{background:rgba(0,197,102,.1);border:1px solid rgba(0,197,102,.3);color:var(--green);border-radius:8px;padding:.6rem 1rem;font-size:.85rem;margin-bottom:.5rem}
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">ThinkBattle</div>
+
+  {% if messages %}
+  <div class="messages">
+    {% for message in messages %}
+      <div class="msg-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <h2>OTP যাচাই করুন</h2>
+  <p class="sub">নিচের নম্বরে ৬ সংখ্যার কোড পাঠানো হয়েছে</p>
+  <div class="phone-badge">📱 {{ phone }}</div>
+
+  <form method="POST">
+    {% csrf_token %}
+    <div class="otp-input">
+      <input type="text" maxlength="1" name="d1" id="d1" autofocus/>
+      <input type="text" maxlength="1" name="d2" id="d2"/>
+      <input type="text" maxlength="1" name="d3" id="d3"/>
+      <input type="text" maxlength="1" name="d4" id="d4"/>
+      <input type="text" maxlength="1" name="d5" id="d5"/>
+      <input type="text" maxlength="1" name="d6" id="d6"/>
+    </div>
+    <input type="hidden" name="otp" id="otpHidden"/>
+    <button type="submit" class="btn" onclick="combineOTP()">যাচাই করুন →</button>
+  </form>
+
+  <p class="resend">কোড আসেনি? <a href="{% url 'landing' %}">আবার পাঠান</a></p>
+</div>
+
+<script>
+  // Auto-focus next input
+  document.querySelectorAll('.otp-input input').forEach((el, i, arr) => {
+    el.addEventListener('input', () => {
+      if (el.value && arr[i+1]) arr[i+1].focus();
+    });
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !el.value && arr[i-1]) arr[i-1].focus();
+    });
+  });
+
+  function combineOTP() {
+    const otp = [...document.querySelectorAll('.otp-input input')]
+      .map(i => i.value).join('');
+    document.getElementById('otpHidden').value = otp;
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ThinkBattle</title>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Teko:wght@700&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--green:#00C566;--green-d:#009E50;--dark:#0A0F0D;--card:#161D19;--panel:#111714;--border:#1E2B23;--muted:#4A6057;--white:#F0FFF6;--gold:#FFD447;--red:#FF4F4F}
+    body{background:var(--dark);color:var(--white);font-family:'Hind Siliguri',sans-serif;min-height:100vh;display:flex;flex-direction:column}
+
+    /* TOP BAR */
+    .topbar{background:var(--panel);border-bottom:1px solid var(--border);padding:.8rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+    .logo{font-family:'Teko',sans-serif;font-size:1.4rem;color:var(--green)}
+    .logo span{color:var(--white)}
+    .score-badge{background:rgba(0,197,102,.1);border:1px solid rgba(0,197,102,.3);border-radius:100px;padding:.3rem .9rem;font-size:.85rem;font-weight:700;color:var(--green)}
+
+    /* PROGRESS */
+    .progress-wrap{padding:1rem 1.5rem .5rem;max-width:700px;margin:0 auto;width:100%}
+    .progress-info{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);margin-bottom:.5rem}
+    .progress-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+    .progress-fill{height:100%;background:var(--green);border-radius:3px;transition:width .4s ease}
+
+    /* TIMER */
+    .timer-wrap{display:flex;justify-content:center;padding:.8rem 1.5rem}
+    .timer-ring{position:relative;width:72px;height:72px}
+    .timer-ring svg{transform:rotate(-90deg)}
+    .timer-ring circle{fill:none;stroke-width:5}
+    .timer-bg{stroke:var(--border)}
+    .timer-fg{stroke:var(--green);stroke-linecap:round;transition:stroke-dashoffset .9s linear, stroke .3s}
+    .timer-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Teko',sans-serif;font-size:1.6rem;font-weight:700}
+
+    /* QUESTION */
+    .question-wrap{max-width:700px;margin:0 auto;padding:0 1.5rem;width:100%;flex:1}
+    .question-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.8rem;margin-bottom:1.2rem}
+    .q-label{font-size:.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem}
+    .q-text{font-size:1.1rem;font-weight:600;line-height:1.6}
+
+    /* OPTIONS */
+    .options{display:flex;flex-direction:column;gap:.75rem;padding:0 1.5rem;max-width:700px;margin:0 auto;width:100%}
+    .option{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;cursor:pointer;transition:border-color .2s,background .2s;font-size:.95rem;font-weight:600;text-align:left;width:100%;color:var(--white)}
+    .option:hover{border-color:rgba(0,197,102,.5);background:rgba(0,197,102,.05)}
+
+    .opt-label{width:32px;height:32px;border-radius:8px;background:var(--panel);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Teko',sans-serif;font-size:1rem;flex-shrink:0;transition:background .2s,border-color .2s}
+    .option.correct .opt-label{background:var(--green);border-color:var(--green);color:var(--dark)}
+    .option.wrong .opt-label{background:var(--red);border-color:var(--red)}
+
+    /* NEXT BTN */
+    .next-wrap{max-width:700px;margin:.8rem auto 2rem;padding:0 1.5rem;width:100%}
+    .btn-next{width:100%;background:var(--green);color:var(--dark);border:none;border-radius:10px;padding:.9rem;font-family:'Hind Siliguri',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:background .2s;display:none}
+    .btn-next:hover{background:var(--green-d)}
+
+    /* FEEDBACK */
+    .feedback{max-width:700px;margin:0 auto .5rem;padding:0 1.5rem;width:100%;font-size:.88rem;font-weight:600;display:none}
+
+    @media(max-width:480px){
+      .q-text{font-size:1rem}
+      .timer-ring{width:60px;height:60px}
+      .timer-text{font-size:1.3rem}
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">Think<span>Battle</span></div>
+  <div class="score-badge">স্কোর: {{ score }}/{{ index|add:"-1" }}</div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-wrap">
+  <div class="progress-info">
+    <span>প্রশ্ন {{ index }} / {{ total }}</span>
+    <span>{{ index|add:"-1" }} সঠিক</span>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill"></div>
+  </div>
+</div>
+
+<!-- TIMER -->
+<div class="timer-wrap">
+  <div class="timer-ring">
+    <svg viewBox="0 0 72 72" width="72" height="72">
+      <circle class="timer-bg" cx="36" cy="36" r="31"/>
+      <circle class="timer-fg" cx="36" cy="36" r="31" id="timerCircle"
+        stroke-dasharray="194.8" stroke-dashoffset="0"/>
+    </svg>
+    <div class="timer-text" id="timerText">30</div>
+  </div>
+</div>
+
+<!-- QUESTION -->
+<div class="question-wrap">
+  <div class="question-card">
+    <div class="q-label">প্রশ্ন {{ index }}</div>
+    <div class="q-text">{{ question.question_text }}</div>
+  </div>
+</div>
+
+<!-- FEEDBACK -->
+<div class="feedback" id="feedback"></div>
+
+<!-- OPTIONS -->
+<div class="options">
+  {% for key, text in options %}
+  <button class="option" onclick="selectAnswer('{{ key }}', this)" id="opt-{{ key }}">
+    <div class="opt-label">{{ key|upper }}</div>
+    <span>{{ text }}</span>
+  </button>
+  {% endfor %}
+</div>
+
+<!-- NEXT -->
+<div class="next-wrap">
+  <form method="POST" id="answerForm">
+    {% csrf_token %}
+    <input type="hidden" name="answer" id="selectedAnswer"/>
+    <button type="submit" class="btn-next" id="nextBtn">
+      {% if index == total %}ফলাফল দেখুন 🏆{% else %}পরের প্রশ্ন →{% endif %}
+    </button>
+  </form>
+</div>
+
+<script>
+  const TOTAL_TIME = 30;
+  const circumference = 194.8;
+  let timeLeft = TOTAL_TIME;
+  let answered = false;
+  let timerInterval;
+
+  const circle = document.getElementById('timerCircle');
+  const timerText = document.getElementById('timerText');
+  const nextBtn = document.getElementById('nextBtn');
+  const feedback = document.getElementById('feedback');
+
+  function updateTimer() {
+    const fraction = timeLeft / TOTAL_TIME;
+    circle.style.strokeDashoffset = circumference * (1 - fraction);
+
+    // রঙ পরিবর্তন
+    if (timeLeft > 15) {
+      circle.style.stroke = '#00C566';
+      timerText.style.color = '#00C566';
+    } else if (timeLeft > 8) {
+      circle.style.stroke = '#FFD447';
+      timerText.style.color = '#FFD447';
+    } else {
+      circle.style.stroke = '#FF4F4F';
+      timerText.style.color = '#FF4F4F';
+    }
+
+    timerText.textContent = timeLeft;
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      if (!answered) timeUp();
+    }
+    timeLeft--;
+  }
+
+  timerInterval = setInterval(updateTimer, 1000);
+  updateTimer();
+
+  function selectAnswer(key, btn) {
+    if (answered) return;
+    answered = true;
+    clearInterval(timerInterval);
+
+    const correct = '{{ question.correct_option }}';
+    const allOpts = document.querySelectorAll('.option');
+
+    allOpts.forEach(o => o.classList.add('disabled'));
+
+    if (key === correct) {
+      btn.classList.add('correct');
+      showFeedback('✅ সঠিক উত্তর!', 'correct');
+    } else {
+      btn.classList.add('wrong');
+      document.getElementById('opt-' + correct).classList.add('correct');
+      showFeedback('❌ ভুল হয়েছে!', 'wrong');
+    }
+
+    document.getElementById('selectedAnswer').value = key;
+    nextBtn.classList.add('show');
+    setTimeout(() => { document.getElementById('answerForm').submit(); }, 1000);
+  }
+
+  function timeUp() {
+    answered = true;
+    const correct = '{{ question.correct_option }}';
+    document.querySelectorAll('.option').forEach(o => o.classList.add('disabled'));
+    document.getElementById('opt-' + correct).classList.add('correct');
+    showFeedback('⏰ সময় শেষ!', 'wrong');
+    document.getElementById('selectedAnswer').value = '';
+    nextBtn.classList.add('show');
+  }
+
+  function showFeedback(msg, type) {
+    feedback.textContent = msg;
+    feedback.className = 'feedback ' + type + ' show';
+  }
+</script>
+</body>
+</html>

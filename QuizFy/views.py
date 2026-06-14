@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 import random
 from .models import Player, OTPSession, Topic, Question, QuizSession
-
+import sys
 def landing(request):
     return render(request, 'index.html')
 
@@ -14,7 +14,7 @@ def send_otp(request):
         otp = str(random.randint(100000, 999999))
         OTPSession.objects.filter(phone=phone).delete()
         OTPSession.objects.create(phone=phone, otp_code=otp)
-        print(f"📱 OTP for {phone}: {otp}")
+        print(f"📱 OTP for {phone}: {otp}", flush=True, file=sys.stderr)
         request.session['otp_phone'] = phone
         return redirect('verify_otp')
     return redirect('landing')

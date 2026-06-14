@@ -124,3 +124,25 @@ def leaderboard(request):
         'my_rank': my_rank,
         'my_score': my_score,
     })
+
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import json
+
+@csrf_exempt
+def robi_notify(request):
+    data = json.loads(request.body)
+    print("Robi Notification:", data, flush=True)
+    return JsonResponse({"status": "ok"})
+
+@csrf_exempt
+def robi_subscription(request):
+    data = json.loads(request.body)
+    msisdn = data.get('msisdn', '')
+    status = data.get('status', '')
+    phone = msisdn.replace('880', '0')
+    player, _ = Player.objects.get_or_create(phone=phone)
+    if status == 'unsubscribed':
+        player.is_charged = False
+        player.save()
+    return JsonResponse({"status": "ok"})

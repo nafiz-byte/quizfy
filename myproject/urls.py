@@ -9,4 +9,6 @@ urlpatterns = [
     path('quiz/question/', views.quiz_question, name='quiz_question'),
     path('quiz/result/', views.quiz_result, name='quiz_result'),
     path('leaderboard/', views.leaderboard, name='leaderboard'),
+path('robi/notify/', views.robi_notify, name='robi_notify'),
+path('robi/subscription/', views.robi_subscription, name='robi_subscription'),
 ]

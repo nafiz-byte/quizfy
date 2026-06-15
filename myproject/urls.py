@@ -11,4 +11,5 @@ urlpatterns = [
     path('leaderboard/', views.leaderboard, name='leaderboard'),
 path('robi/notify/', views.robi_notify, name='robi_notify'),
 path('robi/subscription/', views.robi_subscription, name='robi_subscription'),
+path('unsubscribe/', views.unsubscribe, name='unsubscribe'),
 ]

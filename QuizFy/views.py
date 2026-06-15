@@ -153,3 +153,22 @@ def robi_subscription(request):
         player.is_charged = False
         player.save()
     return JsonResponse({"status": "ok"})
+
+
+def unsubscribe(request):
+    phone = request.session.get('player_phone')
+    if not phone:
+        return redirect('landing')
+
+    if request.method == 'POST':
+        try:
+            player = Player.objects.get(phone=phone)
+            player.is_verified = False
+            player.is_charged = False
+            player.save()
+        except Player.DoesNotExist:
+            pass
+        request.session.flush()
+        return redirect('landing')
+
+    return render(request, 'unsubscribe.html', {'phone': phone})

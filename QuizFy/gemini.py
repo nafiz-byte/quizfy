@@ -2,8 +2,7 @@ import requests
 import json, re, time
 
 def generate_questions(topic="FIFA World Cup 2026", count=15):
-    api_key = "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"
-
+    api_key ="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"
     prompt = f"""
 তুমি একটি বাংলা কুইজ অ্যাপের প্রশ্ন তৈরি করো।
 '{topic}' বিষয়ে {count}টি MCQ প্রশ্ন বাংলায় তৈরি করো।

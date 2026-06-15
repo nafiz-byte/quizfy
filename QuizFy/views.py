@@ -1,10 +1,14 @@
 from django.shortcuts import render, redirect
 from django.utils import timezone
-import random
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import random, sys, json
 from .models import Player, OTPSession, Topic, Question, QuizSession
-import sys
+
+
 def landing(request):
     return render(request, 'index.html')
+
 
 def send_otp(request):
     if request.method == 'POST':
@@ -18,6 +22,7 @@ def send_otp(request):
         request.session['otp_phone'] = phone
         return redirect('verify_otp')
     return redirect('landing')
+
 
 def verify_otp(request):
     phone = request.session.get('otp_phone')
@@ -43,6 +48,7 @@ def verify_otp(request):
             return render(request, 'verify_otp.html', {'phone': phone, 'error': 'ভুল OTP'})
     return render(request, 'verify_otp.html', {'phone': phone})
 
+
 def quiz(request):
     phone = request.session.get('player_phone')
     if not phone:
@@ -55,6 +61,7 @@ def quiz(request):
     request.session['quiz_index'] = 0
     request.session['quiz_score'] = 0
     return redirect('quiz_question')
+
 
 def quiz_question(request):
     phone = request.session.get('player_phone')
@@ -85,6 +92,7 @@ def quiz_question(request):
         'score': request.session.get('quiz_score', 0),
     })
 
+
 def quiz_result(request):
     phone = request.session.get('player_phone')
     score = request.session.get('quiz_score', 0)
@@ -101,6 +109,7 @@ def quiz_result(request):
         'wrong': wrong, 'percentage': percentage,
         'ring_offset': ring_offset, 'phone': phone,
     })
+
 
 def leaderboard(request):
     phone = request.session.get('player_phone')
@@ -125,15 +134,13 @@ def leaderboard(request):
         'my_score': my_score,
     })
 
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-import json
 
 @csrf_exempt
 def robi_notify(request):
     data = json.loads(request.body)
     print("Robi Notification:", data, flush=True)
     return JsonResponse({"status": "ok"})
+
 
 @csrf_exempt
 def robi_subscription(request):

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
-import random, sys, json
+import random, sys, json, os, requests
 from .models import Player, OTPSession, Topic, Question, QuizSession
 
 
@@ -13,39 +13,58 @@ def landing(request):
 def send_otp(request):
     if request.method == 'POST':
         phone = request.POST.get('phone', '').strip()
-        if not phone.startswith('018') or len(phone) != 11:
+        if not phone.startswith('01') or len(phone) != 11:
             return redirect('landing')
-        otp = str(random.randint(100000, 999999))
-        OTPSession.objects.filter(phone=phone).delete()
-        OTPSession.objects.create(phone=phone, otp_code=otp)
-        print(f"📱 OTP for {phone}: {otp}", flush=True, file=sys.stderr)
-        request.session['otp_phone'] = phone
-        return redirect('verify_otp')
+
+        subscriber_id = f"tel:88{phone}"
+        response = requests.post(
+            "https://developer.bdapps.com/otp/request",
+            json={
+                "applicationId": os.environ.get('BDAPPS_APP_ID'),
+                "password": os.environ.get('BDAPPS_PASSWORD'),
+                "subscriberId": subscriber_id
+            }
+        )
+        data = response.json()
+        print("OTP Request:", data, flush=True, file=sys.stderr)
+
+        if data.get('statusCode') == 'S1000':
+            request.session['otp_phone'] = phone
+            request.session['otp_ref'] = data.get('referenceNo')
+            return redirect('verify_otp')
+        return redirect('landing')
     return redirect('landing')
 
 
 def verify_otp(request):
     phone = request.session.get('otp_phone')
+    ref = request.session.get('otp_ref')
     if not phone:
         return redirect('landing')
     if request.method == 'POST':
         entered_otp = request.POST.get('otp', '').strip()
-        try:
-            session = OTPSession.objects.get(phone=phone, otp_code=entered_otp, is_used=False)
-            diff = timezone.now() - session.created_at
-            if diff.seconds > 300:
-                return redirect('landing')
-            session.is_used = True
-            session.save()
+        response = requests.post(
+            "https://developer.bdapps.com/otp/verify",
+            json={
+                "applicationId": os.environ.get('BDAPPS_APP_ID'),
+                "password": os.environ.get('BDAPPS_PASSWORD'),
+                "referenceNo": ref,
+                "otp": entered_otp
+            }
+        )
+        data = response.json()
+        print("OTP Verify:", data, flush=True, file=sys.stderr)
+
+        if data.get('statusCode') == 'S1000':
             player, _ = Player.objects.get_or_create(phone=phone)
             player.is_verified = True
             player.is_charged = True
             player.save()
             request.session['player_phone'] = phone
             request.session.pop('otp_phone', None)
+            request.session.pop('otp_ref', None)
             return redirect('quiz')
-        except OTPSession.DoesNotExist:
-            return render(request, 'verify_otp.html', {'phone': phone, 'error': 'ভুল OTP'})
+        return render(request, 'verify_otp.html', {'phone': phone, 'error': 'ভুল OTP'})
     return render(request, 'verify_otp.html', {'phone': phone})
 
 
@@ -135,6 +154,32 @@ def leaderboard(request):
     })
 
 
+def unsubscribe(request):
+    phone = request.session.get('player_phone')
+    if not phone:
+        return redirect('landing')
+    if request.method == 'POST':
+        try:
+            player = Player.objects.get(phone=phone)
+            player.is_verified = False
+            player.is_charged = False
+            player.save()
+            requests.post(
+                "https://developer.bdapps.com/subscription/send",
+                json={
+                    "applicationId": os.environ.get('BDAPPS_APP_ID'),
+                    "password": os.environ.get('BDAPPS_PASSWORD'),
+                    "subscriberId": f"tel:88{phone}",
+                    "action": "0"
+                }
+            )
+        except Player.DoesNotExist:
+            pass
+        request.session.flush()
+        return redirect('landing')
+    return render(request, 'unsubscribe.html', {'phone': phone})
+
+
 @csrf_exempt
 def robi_notify(request):
     data = json.loads(request.body)
@@ -145,30 +190,11 @@ def robi_notify(request):
 @csrf_exempt
 def robi_subscription(request):
     data = json.loads(request.body)
-    msisdn = data.get('msisdn', '')
-    status = data.get('status', '')
-    phone = msisdn.replace('880', '0')
+    msisdn = data.get('msisdn', '') or data.get('subscriberId', '')
+    status = data.get('status', '') or data.get('subscriptionStatus', '')
+    phone = msisdn.replace('tel:88', '0').replace('880', '0')
     player, _ = Player.objects.get_or_create(phone=phone)
-    if status == 'unsubscribed':
+    if 'UNREGIST' in status.upper():
         player.is_charged = False
         player.save()
-    return JsonResponse({"status": "ok"})
-
-
-def unsubscribe(request):
-    phone = request.session.get('player_phone')
-    if not phone:
-        return redirect('landing')
-
-    if request.method == 'POST':
-        try:
-            player = Player.objects.get(phone=phone)
-            player.is_verified = False
-            player.is_charged = False
-            player.save()
-        except Player.DoesNotExist:
-            pass
-        request.session.flush()
-        return redirect('landing')
-
-    return render(request, 'unsubscribe.html', {'phone': phone})
+    return JsonResponse({"statusCode": "S1000", "statusDetail": "Success"})

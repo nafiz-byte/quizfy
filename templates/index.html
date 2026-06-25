@@ -416,7 +416,7 @@
     <a href="#register" class="btn-primary">কুইজ শুরু করুন →</a>
     <a href="#how" class="btn-ghost">কীভাবে কাজ করে?</a>
   </div>
-  <p class="charge-note">* প্রতিটি কুইজ সেশনে 2.78 টাকা চার্জ হবে (Robi)</p>
+  <p class="charge-note">* প্রতিটি কুইজ সেশনে 2.78 টাকা চার্জ হবে (Vat+SD+SC%)</p>
 
   <div class="stats">
     <div class="stat-card">
@@ -432,7 +432,7 @@
       <div class="stat-label">একটি সেশনে</div>
     </div>
     <div class="stat-card">
-      <div class="stat-num">১০০%</div>
+      <div class="stat-num">100%</div>
       <div class="stat-label">বাংলায়</div>
     </div>
   </div>
@@ -542,14 +542,14 @@
 <form method="POST" action="/send-otp/">
   {% csrf_token %}
   <div class="input-group">
-    <label>মোবাইল নম্বর (Robi)</label>
+    <label>মোবাইল নম্বর (Robi/Airtel)</label>
     <input type="tel" name="phone" placeholder="018XXXXXXXX" maxlength="11"/>
   </div>
   <button type="submit" class="btn-full">Send OTP →</button>
 </form>
 
   <p class="register-note">
-    📌 শুধুমাত্র Robi নম্বর সমর্থিত।
+    📌 Robi/Airtel
   </p>
 
 </div>
